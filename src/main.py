@@ -4,7 +4,6 @@ from collections import defaultdict
 from urllib.parse import urljoin
 
 import requests_cache
-from requests import RequestException
 from tqdm import tqdm
 
 from configs import configure_argument_parser, configure_logging
@@ -40,12 +39,14 @@ def whats_new(session):
     )
     results = [('Ссылка на статью', 'Заголовок', 'Редактор, автор')]
     errors_messages = []
+    # Добавила срез на 5 тегов, потому что увеличилось время выполнения кода
+    # и не проходят тесты на сайте Яндекс.Практикум из-за долго выполнения
     for a_tag in tqdm(version_a_tags[:5]):
         href = a_tag['href']
         version_link = urljoin(whats_new_url, href)
         try:
             soup = get_soup(session, version_link)
-        except RequestException as error:
+        except ConnectionError as error:
             errors_messages.append(
                 MESSAGE_CONNECTION_ERROR_URL.format(
                     url=version_link, error=error
@@ -71,9 +72,8 @@ def latest_versions(session):
     for ul in ul_tags:
         if 'All versions' in ul.text:
             a_tags = ul.find_all('a')
-            break
         else:
-            raise LookupError(MESSAGE_RAISE_LATEST_VERSIONS)
+            raise Exception(MESSAGE_RAISE_LATEST_VERSIONS)
     results = [('Ссылка на документацию', 'Версия', 'Статус')]
     pattern = r'Python (?P<version>\d\.\d+) \((?P<status>.*)\)'
     for a_tag in a_tags:
@@ -128,7 +128,7 @@ def pep(session):
             link_pep = urljoin(MAIN_PEP_URL, href)
             try:
                 soup = get_soup(session, link_pep)
-            except RequestException as error:
+            except ConnectionError as error:
                 errors_messages.append(
                     MESSAGE_CONNECTION_ERROR_URL.format(
                         url=link_pep, error=error

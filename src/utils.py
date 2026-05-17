@@ -24,8 +24,7 @@ def get_response(session, url, encoding='utf-8'):
 
 
 def get_soup(session, url, features='lxml'):
-    soup = BeautifulSoup(get_response(session, url).text, features=features)
-    return soup
+    return BeautifulSoup(get_response(session, url).text, features=features)
 
 
 def find_tag(soup, tag, attrs=None):

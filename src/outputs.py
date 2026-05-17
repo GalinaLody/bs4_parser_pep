@@ -6,14 +6,9 @@ from prettytable import PrettyTable
 
 from constants import (BASE_DIR, DATETIME_FORMAT,
                        OUTPUT_FILE, OUTPUT_PRETTY,
-                       OUTPUT_DEFAULT, RESULTS_DIR)
+                       RESULTS_DIR)
 
 MESSAGE_FILE_OUTPUT_SAVE_FILE = 'Файл с результатами был сохранён: {file_path}'
-
-
-def control_output(results, cli_args):
-    """Контролирует вывод данных."""
-    CONTROL_OUTPUT[cli_args.output](results, cli_args)
 
 
 def default_output(results, *args):
@@ -47,6 +42,11 @@ def file_output(results, cli_args):
 CONTROL_OUTPUT = {
     OUTPUT_FILE: file_output,
     OUTPUT_PRETTY: pretty_output,
-    OUTPUT_DEFAULT: default_output
+    None: default_output
 
 }
+
+
+def control_output(results, cli_args):
+    """Контролирует вывод данных."""
+    CONTROL_OUTPUT[cli_args.output](results, cli_args)
