@@ -40,7 +40,7 @@ def whats_new(session):
     )
     results = [('Ссылка на статью', 'Заголовок', 'Редактор, автор')]
     errors_messages = []
-    for a_tag in tqdm(version_a_tags):
+    for a_tag in tqdm(version_a_tags[:5]):
         href = a_tag['href']
         version_link = urljoin(whats_new_url, href)
         try:
