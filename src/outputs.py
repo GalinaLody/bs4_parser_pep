@@ -4,27 +4,24 @@ import logging
 
 from prettytable import PrettyTable
 
-from constants import BASE_DIR, DATETIME_FORMAT
+from constants import BASE_DIR, DATETIME_FORMAT, OUTPUT_FILE, OUTPUT_PRETTY
+
+MESSAGE_FILE_OUTPUT_SAVE_FILE = 'Файл с результатами был сохранён: {file_path}'
 
 
 def control_output(results, cli_args):
     """Контролирует вывод данных."""
-    output = cli_args.output
-    if output == 'pretty':
-        pretty_output(results)
-    elif output == 'file':
-        file_output(results, cli_args)
-    else:
-        default_output(results)
+    output = CONTROL_OUTPUT.get(cli_args.output, default_output)
+    output(results, cli_args)
 
 
-def default_output(results):
+def default_output(results, *args):
     """Вывод данных по умолчанию."""
     for row in results:
         print(*row)
 
 
-def pretty_output(results):
+def pretty_output(results, *args):
     """Вывод данных в формате таблицы."""
     table = PrettyTable()
     table.field_names = results[0]
@@ -35,14 +32,21 @@ def pretty_output(results):
 
 def file_output(results, cli_args):
     """Сохранение данных в файле в формате csv."""
+    # автотесты не позоляют убрать эту переменну в константы
+    # и требуют ее наличия на уровне модуля.
     results_dir = BASE_DIR / 'results'
     results_dir.mkdir(exist_ok=True)
     parser_mode = cli_args.mode
-    now = dt.datetime.now()
-    now_formatted = now.strftime(DATETIME_FORMAT)
+    now_formatted = dt.datetime.now().strftime(DATETIME_FORMAT)
     file_name = f'{parser_mode}_{now_formatted}.csv'
     file_path = results_dir / file_name
     with open(file_path, 'w', encoding='utf-8') as f:
-        writer = csv.writer(f, dialect='unix')
+        writer = csv.writer(f, dialect=csv.unix_dialect)
         writer.writerows(results)
-    logging.info(f'Файл с результатами был сохранён: {file_path}')
+    logging.info(MESSAGE_FILE_OUTPUT_SAVE_FILE.format(file_path=file_path))
+
+
+CONTROL_OUTPUT = {
+    OUTPUT_FILE: file_output,
+    OUTPUT_PRETTY: pretty_output,
+}

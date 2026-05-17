@@ -1,9 +1,15 @@
 from pathlib import Path
 
 MAIN_DOC_URL = 'https://docs.python.org/3/'
-BASE_DIR = Path(__file__).parent
-DATETIME_FORMAT = '%Y-%m-%d_%H-%M-%S'
 MAIN_PEP_URL = 'https://peps.python.org/'
+
+BASE_DIR = Path(__file__).parent
+LOG_DIR = BASE_DIR / 'logs'
+LOG_FILE = LOG_DIR / 'parser.log'
+RESULTS_DIR = BASE_DIR / 'results'
+
+DATETIME_FORMAT = '%Y-%m-%d_%H-%M-%S'
+
 EXPECTED_STATUS = {
     'A': ('Active', 'Accepted'),
     'D': ('Deferred',),
@@ -14,3 +20,6 @@ EXPECTED_STATUS = {
     'W': ('Withdrawn',),
     '': ('Draft', 'Active'),
 }
+
+OUTPUT_PRETTY = 'pretty'
+OUTPUT_FILE = 'file'
