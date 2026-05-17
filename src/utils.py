@@ -23,11 +23,8 @@ def get_response(session, url, encoding='utf-8'):
         ) from error
 
 
-def get_soup(session, url):
-    response = get_response(session, url)
-    if response is None:
-        return
-    soup = BeautifulSoup(response.text, features='lxml')
+def get_soup(session, url, features='lxml'):
+    soup = BeautifulSoup(get_response(session, url).text, features=features)
     return soup
 
 

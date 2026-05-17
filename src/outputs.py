@@ -4,15 +4,16 @@ import logging
 
 from prettytable import PrettyTable
 
-from constants import BASE_DIR, DATETIME_FORMAT, OUTPUT_FILE, OUTPUT_PRETTY
+from constants import (BASE_DIR, DATETIME_FORMAT,
+                       OUTPUT_FILE, OUTPUT_PRETTY,
+                       OUTPUT_DEFAULT, RESULTS_DIR)
 
 MESSAGE_FILE_OUTPUT_SAVE_FILE = 'Файл с результатами был сохранён: {file_path}'
 
 
 def control_output(results, cli_args):
     """Контролирует вывод данных."""
-    output = CONTROL_OUTPUT.get(cli_args.output, default_output)
-    output(results, cli_args)
+    CONTROL_OUTPUT[cli_args.output](results, cli_args)
 
 
 def default_output(results, *args):
@@ -32,21 +33,20 @@ def pretty_output(results, *args):
 
 def file_output(results, cli_args):
     """Сохранение данных в файле в формате csv."""
-    # автотесты не позоляют убрать эту переменну в константы
-    # и требуют ее наличия на уровне модуля.
-    results_dir = BASE_DIR / 'results'
+    results_dir = BASE_DIR / RESULTS_DIR
     results_dir.mkdir(exist_ok=True)
     parser_mode = cli_args.mode
     now_formatted = dt.datetime.now().strftime(DATETIME_FORMAT)
     file_name = f'{parser_mode}_{now_formatted}.csv'
     file_path = results_dir / file_name
     with open(file_path, 'w', encoding='utf-8') as f:
-        writer = csv.writer(f, dialect=csv.unix_dialect)
-        writer.writerows(results)
+        csv.writer(f, dialect=csv.unix_dialect).writerows(results)
     logging.info(MESSAGE_FILE_OUTPUT_SAVE_FILE.format(file_path=file_path))
 
 
 CONTROL_OUTPUT = {
     OUTPUT_FILE: file_output,
     OUTPUT_PRETTY: pretty_output,
+    OUTPUT_DEFAULT: default_output
+
 }
