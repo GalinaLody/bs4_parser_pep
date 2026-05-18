@@ -12,6 +12,7 @@ from constants import (BASE_DIR,
                        EXPECTED_STATUS,
                        MAIN_DOC_URL,
                        MAIN_PEP_URL)
+from exceptions import ParserFindTextTagException
 from outputs import control_output
 from utils import find_tag, get_soup
 
@@ -69,19 +70,12 @@ def latest_versions(session):
     soup = get_soup(session, MAIN_DOC_URL)
     sidebar = find_tag(soup, 'div', attrs={'class': 'sphinxsidebarwrapper'})
     ul_tags = sidebar.find_all('ul')
-    # В переменной ul_tags хранятся два списка с тегами <ul>,
-    # но парсеру нужен только первый.
-    # Его можно найти по тексту, который содержится в строках списка,
-    # например, по фразе All versions — это делается через цикл.
-    # Циклу задаётся условие: если в списке есть фраза All versions,
-    # то нужно найти в нём все теги <a>, а если нет
-    # — вывести сообщение «Ничего не нашлось».
-    # Это код Яндекс.практикум
     for ul in ul_tags:
         if 'All versions' in ul.text:
             a_tags = ul.find_all('a')
-        else:
-            raise ValueError(MESSAGE_RAISE_LATEST_VERSIONS)
+            break
+    else:
+        raise ParserFindTextTagException(MESSAGE_RAISE_LATEST_VERSIONS)
     results = [('Ссылка на документацию', 'Версия', 'Статус')]
     pattern = r'Python (?P<version>\d\.\d+) \((?P<status>.*)\)'
     for a_tag in a_tags:
